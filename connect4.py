@@ -1,4 +1,5 @@
 #Created 2/8/19 by Bradley Morton for CS405 assignment
+#Much of the code has been taken from Dr. Metzgar with permission. 
 
 class Environment:
 	def __init__(self):
@@ -32,9 +33,8 @@ class Environment:
 
 
 
-
 	def getWinner(self):
-		'''checks to see if Tic Tac Toe has been won'''
+		'''checks to see if Connect 4 has been won'''
 
 		for j in range(self.height):
 			for i in range(self.width):
@@ -45,25 +45,29 @@ class Environment:
                 # check horizontal
 				h2 = self.get(i+1, j)
 				h3 = self.get(i+2, j)
-				if p == h2 and h2 == h3:
+				h4 = self.get(i+3, j)
+				if p == h2 and h2 == h3 and h3 == h4:
 					return p
 
                 # check vertical
 				v2 = self.get(i, j+1)
 				v3 = self.get(i, j+2)
-				if p == v2 and v2 == v3:
+				v4 = self.get(i, j+3)
+				if p == v2 and v2 == v3 and v3 == v4:
 					return p
 
                 # check diagonal
 				d2 = self.get(i+1, j+1)
 				d3 = self.get(i+2, j+2)
-				if p == d2 and d2 == d3:
+				d4 = self.get(i+3, j+3)
+				if p == d2 and d2 == d3 and d3 == d4:
 					return p
 
                 # check reverse diagonal
 				d2 = self.get(i-1, j+1)
 				d3 = self.get(i-2, j+2)
-				if p == d2 and d2 == d3:
+				d4 = self.get(i-3, j+3)
+				if p == d2 and d2 == d3 and d3 == d4:
 					return p
         
 
