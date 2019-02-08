@@ -32,6 +32,8 @@ class Environment:
 		self.board[row][col] = piece
 
 
+	def
+
 
 	def getWinner(self):
 		'''checks to see if Connect 4 has been won'''
