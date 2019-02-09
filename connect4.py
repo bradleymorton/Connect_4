@@ -32,6 +32,10 @@ class Environment:
 		self.board[row][col] = piece
 
 
+	def makeMove(self, col, player):
+		moves = returnValidMoves
+		if moves[col] != -1:
+			put(col, moves[col], player)
 
 
 
@@ -81,3 +85,9 @@ class Environment:
 				d4 = self.get(i-3, j+3)
 				if p == d2 and d2 == d3 and d3 == d4:
 					return p
+
+
+
+
+def randomMove(Environment):
+	return 1
