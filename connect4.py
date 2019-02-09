@@ -1,5 +1,7 @@
 #Created 2/8/19 by Bradley Morton for CS405 assignment
 #Much of the code has been taken from Dr. Metzgar with permission.
+import random
+
 
 class Environment:
 	def __init__(self):
@@ -33,9 +35,9 @@ class Environment:
 
 
 	def makeMove(self, col, player):
-		moves = returnValidMoves
+		moves = self.returnValidMoves()
 		if moves[col] != -1:
-			put(col, moves[col], player)
+			self.put(col, moves[col], player)
 
 
 
@@ -43,8 +45,8 @@ class Environment:
 		moves = [-1, -1, -1, -1, -1, -1, -1]
 		for i in moves:
 			for j in range(5):
-				if get(i, j) == 0:
-					passmoves[i]=j
+				if self.get(i, j) == 0:
+					moves[i]=j
 		return moves
 
 
@@ -89,5 +91,52 @@ class Environment:
 
 
 
-def randomMove(Environment):
-	return 1
+def randomMove(Environment, player):
+	moves = Environment.returnValidMoves()
+	while True:
+		i = random.randint(0, 6)
+		if moves[i] == -1:
+			continue
+		Environment.makeMove(i, player)
+		break
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+board = Environment()
+turn =  1
+while True:
+	if turn == 42:
+		print("no winner")
+		break
+
+
+	if turn%2 == 1:
+		print("player 1 going")
+		randomMove(board, 1)
+		done = board.getWinner
+		if done == 1:
+			print("player 1 wins")
+
+
+
+
+	if turn%2 == 0:
+		print("player 2 going")
+		randomMove(board, 2)
+		done = board.getWinner
+		if done == 2:
+			print("player 2 wins")
+
+	turn = turn +1
