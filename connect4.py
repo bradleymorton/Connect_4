@@ -33,13 +33,6 @@ class Environment:
 
 
 
-	def checkIfColValid(self, col):
-		temp = get (col, 5)
-		if temp == 0:
-			return True
-		return False
-
-
 
 
 	def returnValidMoves(self):
