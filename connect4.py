@@ -117,7 +117,7 @@ def randomMove(Environment, player):
 board = Environment()
 turn =  1
 while True:
-	if turn == 42:
+	if turn == 43:
 		print("no winner")
 		break
 
@@ -128,6 +128,7 @@ while True:
 		done = board.getWinner
 		if done == 1:
 			print("player 1 wins")
+			break
 
 
 
@@ -138,5 +139,6 @@ while True:
 		done = board.getWinner
 		if done == 2:
 			print("player 2 wins")
+			break
 
 	turn = turn +1
