@@ -1,5 +1,5 @@
 #Created 2/8/19 by Bradley Morton for CS405 assignment
-#Much of the code has been taken from Dr. Metzgar with permission. 
+#Much of the code has been taken from Dr. Metzgar with permission.
 
 class Environment:
 	def __init__(self):
@@ -17,9 +17,9 @@ class Environment:
 
 
 	def get(self, col, row):
-		if row < 0 or row > self.height - 1:
+		if row < 0 or row > 6:
 			return 0
-		if col < 0 or col > self.width - 1:
+		if col < 0 or col > 7:
 			return 0
 		return self.board[row][col]
 
@@ -32,7 +32,24 @@ class Environment:
 		self.board[row][col] = piece
 
 
-	def
+
+	def checkIfColValid(self, col):
+		temp = get (col, 5)
+		if temp == 0:
+			return True
+		return False
+
+
+
+
+	def returnValidMoves(self):
+		moves = [-1, -1, -1, -1, -1, -1, -1]
+		for i in moves:
+			for j in range(5):
+				if get(i, j) == 0:
+					passmoves[i]=j
+		return moves
+
 
 
 	def getWinner(self):
@@ -71,5 +88,3 @@ class Environment:
 				d4 = self.get(i-3, j+3)
 				if p == d2 and d2 == d3 and d3 == d4:
 					return p
-        
-
