@@ -54,7 +54,83 @@ class Environment:
 
 
 	def undo(self):
-		self.board[lastMoveRow][lastMoveCol]=0
+		self.board[self.lastMoveRow][self.lastMoveCol]=0
+
+
+	def threeInRow(self, player):
+		total = 0
+		for j in range(self.height):
+			for i in range(self.width):
+				p = self.get(i, j)
+				if p == 0:
+					continue
+
+                # check horizontal
+				h2 = self.get(i+1, j)
+				h3 = self.get(i+2, j)
+				if player == h2 and h2 == h3:
+					total += 1
+
+                # check vertical
+				v2 = self.get(i, j+1)
+				v3 = self.get(i, j+2)
+				if player == v2 and v2 == v3:
+					total += 1
+
+                # check diagonal
+				d2 = self.get(i+1, j+1)
+				d3 = self.get(i+2, j+2)
+				if player == d2 and d2 == d3:
+					total += 1
+
+                # check reverse diagonal
+				d2 = self.get(i-1, j+1)
+				d3 = self.get(i-2, j+2)
+				if player == d2 and d2 == d3:
+					total += 1
+
+			return total
+
+	def optimalThreeInRow(self, player):
+		total = 0
+		for j in range(self.height):
+			for i in range(self.width):
+				p = self.get(i, j)
+				if p == 0:
+					continue
+
+                # check horizontal
+				h0 = self.get(i-1, j)
+				h2 = self.get(i+1, j)
+				h3 = self.get(i+2, j)
+				h4 = self.get(i+3, j)
+				if player == h2 and h2 == h3 and h0 == 0 and h4 == 0 and i > 0 and i <6:
+					total += 1
+
+                # check vertical
+				v2 = self.get(i, j+1)
+				v3 = self.get(i, j+2)
+				if player == v2 and v2 == v3:
+					total += 1
+
+                # check diagonal
+				d0 = self.get(i-1, j-1)
+				d2 = self.get(i+1, j+1)
+				d3 = self.get(i+2, j+2)
+				d4 = self.get(i+3, j+3)
+				if player == d2 and d2 == d3 and d0 == 0 and d4 == 0 and i>0 and j <5:
+					total += 1
+
+                # check reverse diagonal
+				d0 = self.get(i+1, j-1)
+				d2 = self.get(i-1, j+1)
+				d3 = self.get(i-2, j+2)
+				d4 = self.get(i-3, j+3)
+				if player == d2 and d2 == d3 and d0 == 0 and d4 == 0:
+					total += 1
+
+			return total
+
 
 	def getWinner(self):
 		'''checks to see if Connect 4 has been won'''
@@ -112,12 +188,71 @@ def randomMove(Environment, player):
 def lowHangingFruit(board, player):
 	moves = board.returnValidMoves()
 	for i in range(6):
-		board.makeMove(board, i, player)
+		board.makeMove(i, player)
 		if board.getWinner():
 			break
 		board.undo()
+		other = (player + 1) % 2
+		board.makeMove(i, other)
+		if board.getWinner():
+			board.undo()
+			board.makeMove(i, player)
+			break
+		while True:
+			i = random.randint(0, 6)
+			if moves[i] == -1:
+				continue
+			board.makeMove(i, player)
+			break
 
 
+
+def rankedMoves(board, player):
+	moves = board.returnValidMoves()
+	for i in range(6):
+		board.makeMove(i, player)
+		if board.getWinner():
+			break
+		board.undo()
+		other = (player + 1) % 2
+		board.makeMove(i, other)
+		if board.getWinner():
+			board.undo()
+			board.makeMove(i, player)
+			break
+
+	currentThree = board.threeInRow(player)
+	rank = [0, 0, 0, 0, 0, 0, 0]
+	for i in range(6):
+		rank[i] = ranker(board, i, player, currentThree)
+
+	current = 0
+	for i in range(6):
+		if rank[i] > rank[current]:
+			current = i
+	board.makeMove(current, player)
+
+
+
+
+def ranker(board, col, player, currentThree):
+	total = 0
+	if col == 0 or col == 6:
+		total += 0
+	if col == 1 or col == 5:
+		total += 3
+	if col == 2 or col == 4:
+		total += 6
+	if col == 3:
+		total +=9
+
+	board.makeMove(col, player)
+	greaterThrees = board.threeInRow(player) - currentThree
+	total += 500* board.optimalThreeInRow(player)
+	board.undo()
+	total += 3*greaterThrees
+
+	return total
 
 
 
@@ -132,7 +267,7 @@ turn =  1
 player_1 = 0
 player_2 = 0
 tie = 0
-for i in range(1000):
+for i in range(50000):
 	while True:
 		moves = board.returnValidMoves()
 		numAvailable = 0
@@ -159,7 +294,7 @@ for i in range(1000):
 
 		if turn%2 == 0:
 			#print("player 2 going")
-			randomMove(board, 2)
+			rankedMoves(board, 2)
 			done = board.getWinner()
 			if done == 2:
 				#print("player 2 wins")
@@ -167,7 +302,7 @@ for i in range(1000):
 				break
 
 		turn += 1
-		
+
 	board.reset()
 	turn = 1
 
