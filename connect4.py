@@ -104,7 +104,9 @@ def randomMove(Environment, player):
 
 
 
-
+def lowHangingFruit(board, player)
+	moves = board.returnValidMoves()
+	
 
 
 
