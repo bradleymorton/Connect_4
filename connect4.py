@@ -281,8 +281,8 @@ for i in range(50000):
 
 
 		if turn%2 == 1:
-			#print("player 1 going")
-			randomMove(board, 1)
+			#This is how you determine which agent plays as player one. 
+			rankedMoves(board, 1)
 			done = board.getWinner()
 			if done == 1:
 				#print("player 1 wins")
@@ -293,8 +293,8 @@ for i in range(50000):
 
 
 		if turn%2 == 0:
-			#print("player 2 going")
-			rankedMoves(board, 2)
+			#This is how you pick which agent is player two. 
+			randomMove(board, 2)
 			done = board.getWinner()
 			if done == 2:
 				#print("player 2 wins")
