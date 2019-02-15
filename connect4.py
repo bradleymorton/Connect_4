@@ -172,13 +172,13 @@ class Environment:
 
 
 
-def randomMove(Environment, player):
-	moves = Environment.returnValidMoves()
+def randomMove(board, player):
+	moves = board.returnValidMoves()
 	while True:
 		i = random.randint(0, 6)
 		if moves[i] == -1:
 			continue
-		Environment.makeMove(i, player)
+		board.makeMove(i, player)
 		break
 
 
@@ -255,8 +255,8 @@ def ranker(board, col, player, currentThree):
 	return total
 
 
-
-
+def userPlays(board, player)
+print("You are player "+str(player))
 
 
 
@@ -267,7 +267,7 @@ turn =  1
 player_1 = 0
 player_2 = 0
 tie = 0
-for i in range(50000):
+for i in range(1):
 	while True:
 		moves = board.returnValidMoves()
 		numAvailable = 0
