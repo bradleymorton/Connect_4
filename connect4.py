@@ -255,11 +255,6 @@ def ranker(board, col, player, currentThree):
 	return total
 
 
-def userPlays(board, player)
-print("You are player "+str(player))
-
-
-
 
 
 board = Environment()
