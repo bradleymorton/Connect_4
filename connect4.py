@@ -5,31 +5,31 @@ import random
 
 class Environment:
 	def __init__(self):
-		self.board = [[0 for i in range(7)] for j in range(6)]
-		self.width = 7
-		self.height = 6
+		self.board = [[0 for i in range(10)] for j in range(10)]
+		self.width = 10
+		self.height = 10
 		self.lastMoveCol = 0
 		self.lastMoveRow = 0
 
 
 
 	def reset(self):
-		for j in range(6):
-			for i in range(7):
+		for j in range(10):
+			for i in range(10):
 				self.board[j][i] = 0
 
 
 	def get(self, col, row):
-		if row < 0 or row > 5:
+		if row < 0 or row > 9:
 			return 0
-		if col < 0 or col > 6:
+		if col < 0 or col > 9:
 			return 0
 		return self.board[row][col]
 
 	def put(self, col, row, piece):
-		if row < 0 or row > 5:
+		if row < 0 or row > 9:
 			return
-		if col < 0 or col > 6:
+		if col < 0 or col > 9:
 			return
 		self.lastMove = (col, row, piece)
 		self.board[row][col] = piece
@@ -44,9 +44,9 @@ class Environment:
 
 
 	def returnValidMoves(self):
-		moves = [-1, -1, -1, -1, -1, -1, -1]
+		moves = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
 		for i in moves:
-			for j in range(5):
+			for j in range(10):
 				if self.get(i, j) == 0:
 					moves[i]=j
 		return moves
@@ -175,7 +175,7 @@ class Environment:
 def randomMove(board, player):
 	moves = board.returnValidMoves()
 	while True:
-		i = random.randint(0, 6)
+		i = random.randint(0, 9)
 		if moves[i] == -1:
 			continue
 		board.makeMove(i, player)
@@ -187,7 +187,7 @@ def randomMove(board, player):
 
 def lowHangingFruit(board, player):
 	moves = board.returnValidMoves()
-	for i in range(6):
+	for i in range(10):
 		board.makeMove(i, player)
 		if board.getWinner():
 			break
@@ -199,7 +199,7 @@ def lowHangingFruit(board, player):
 			board.makeMove(i, player)
 			break
 		while True:
-			i = random.randint(0, 6)
+			i = random.randint(0, 9)
 			if moves[i] == -1:
 				continue
 			board.makeMove(i, player)
@@ -209,7 +209,7 @@ def lowHangingFruit(board, player):
 
 def rankedMoves(board, player):
 	moves = board.returnValidMoves()
-	for i in range(6):
+	for i in range(10):
 		board.makeMove(i, player)
 		if board.getWinner():
 			break
@@ -222,12 +222,12 @@ def rankedMoves(board, player):
 			break
 
 	currentThree = board.threeInRow(player)
-	rank = [0, 0, 0, 0, 0, 0, 0]
+	rank = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 	for i in range(6):
 		rank[i] = ranker(board, i, player, currentThree)
 
 	current = 0
-	for i in range(6):
+	for i in range(10):
 		if rank[i] > rank[current]:
 			current = i
 	board.makeMove(current, player)
@@ -237,14 +237,16 @@ def rankedMoves(board, player):
 
 def ranker(board, col, player, currentThree):
 	total = 0
-	if col == 0 or col == 6:
+	if col == 0 or col == 9:
 		total += 0
-	if col == 1 or col == 5:
+	if col == 1 or col == 8:
 		total += 3
-	if col == 2 or col == 4:
+	if col == 2 or col == 7:
 		total += 6
-	if col == 3:
-		total +=9
+	if col == 3 or col == 6:
+		total += 9
+	if col == 4 or col == 5:
+		total += 12
 
 	board.makeMove(col, player)
 	greaterThrees = board.threeInRow(player) - currentThree
@@ -255,6 +257,22 @@ def ranker(board, col, player, currentThree):
 	return total
 
 
+def printBoard(board):
+	for i in range(10):
+		for j in range(10):
+			print(board.get(j, i))
+	#print("\n")
+
+
+
+
+
+#def humanPlayer(board, player):
+#	for i in range(10):
+#		print("cake")
+
+
+
 
 
 board = Environment()
@@ -262,11 +280,11 @@ turn =  1
 player_1 = 0
 player_2 = 0
 tie = 0
-for i in range(1):
+for i in range(50):
 	while True:
 		moves = board.returnValidMoves()
 		numAvailable = 0
-		for j in range(6):
+		for j in range(10):
 			if moves[j] != -1:
 				numAvailable +=1
 		if numAvailable == 0:
@@ -277,7 +295,7 @@ for i in range(1):
 
 		if turn%2 == 1:
 			#This is how you determine which agent plays as player one. 
-			rankedMoves(board, 1)
+			randomMove(board, 1)
 			done = board.getWinner()
 			if done == 1:
 				#print("player 1 wins")
@@ -297,8 +315,10 @@ for i in range(1):
 				break
 
 		turn += 1
+		printBoard(board)
 
 	board.reset()
 	turn = 1
+	print("completed game\n")
 
 print("player 1 wins "+ str(player_1) +" times, \nplayer 2 wins " + str(player_2) + " times, \nwith "+str(tie) +" ties")
