@@ -31,19 +31,18 @@ class Environment:
 			return
 		if col < 0 or col > 9:
 			return
-		self.lastMove = (col, row, piece)
 		self.board[row][col] = piece
 
 
-	def makeMove(self, col, player):
-		moves = self.returnValidMoves()
-		if moves[col] != -1:
-			self.put(col, moves[col], player)
+	def actuator(self, col, player):
+		percepts = self.sensor()
+		if percepts[col] != -1:
+			self.put(col, percepts[col], player)
 		self.lastMoveCol = col
-		self.lastMoveRow = moves[col]
+		self.lastMoveRow = percepts[col]
 
 
-	def returnValidMoves(self):
+	def sensor(self):
 		moves = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
 		for i in range(10):
 			for j in range(10):
@@ -172,14 +171,13 @@ class Environment:
 
 
 
-def randomMove(board, player):
-	moves = board.returnValidMoves()
-	print("moves available are"+str(moves))
+def randomMovesAgent(board, player):
+	percepts = board.sensor()
 	while True:
 		i = random.randint(0, 9)
-		if moves[i] == -1:
+		if percepts[i] == -1:
 			continue
-		board.makeMove(i, player)
+		board.actuator(i, player)
 		break
 
 
@@ -187,40 +185,40 @@ def randomMove(board, player):
 
 
 
-def lowHangingFruit(board, player):
-	moves = board.returnValidMoves()
+def lowHangingFruitAgent(board, player):
+	percepts = board.sensor()
 	for i in range(10):
-		board.makeMove(i, player)
+		board.actuator(i, player)
 		if board.getWinner():
 			break
 		board.undo()
 		other = (player + 1) % 2
-		board.makeMove(i, other)
+		board.actuator(i, other)
 		if board.getWinner():
 			board.undo()
-			board.makeMove(i, player)
+			board.actuator(i, player)
 			break
 		while True:
 			i = random.randint(0, 9)
-			if moves[i] == -1:
+			if percepts[i] == -1:
 				continue
-			board.makeMove(i, player)
+			board.actuator(i, player)
 			break
 
 
 
-def rankedMoves(board, player):
-	moves = board.returnValidMoves()
+def rankedMovesAgent(board, player):
+	percepts = board.returnValidMoves()
 	for i in range(10):
-		board.makeMove(i, player)
+		board.actuator(i, player)
 		if board.getWinner():
 			break
 		board.undo()
 		other = (player + 1) % 2
-		board.makeMove(i, other)
+		board.actuator(i, other)
 		if board.getWinner():
 			board.undo()
-			board.makeMove(i, player)
+			board.actuator(i, player)
 			break
 
 	currentThree = board.threeInRow(player)
@@ -232,7 +230,7 @@ def rankedMoves(board, player):
 	for i in range(10):
 		if rank[i] > rank[current]:
 			current = i
-	board.makeMove(current, player)
+	board.actuator(current, player)
 
 
 
@@ -250,7 +248,7 @@ def ranker(board, col, player, currentThree):
 	if col == 4 or col == 5:
 		total += 12
 
-	board.makeMove(col, player)
+	board.actuator(col, player)
 	greaterThrees = board.threeInRow(player) - currentThree
 	total += 500* board.optimalThreeInRow(player)
 	board.undo()
@@ -269,9 +267,23 @@ def printBoard(board):
 
 
 
-#def humanPlayer(board, player):
-#	for i in range(10):
-#		print("cake")
+def humanPlayerAgent(board, player):
+	printBoard(board)
+	percepts= board.sensor()
+	print("Your valid moves are:")
+	for i in range(10):
+		print(str(i)+ ", ", str(percepts[i]), "      ", end = '')
+
+	print("")
+	while True:
+		move = int(input("What is your move?"))
+		if move <0 or move >9:
+			continue
+		if percepts[move] == -1:
+			continue
+		break
+	board.actuator(move, player)
+
 
 
 
@@ -282,12 +294,12 @@ turn =  1
 player_1 = 0
 player_2 = 0
 tie = 0
-for i in range(50):
+for i in range(5):
 	while True:
-		moves = board.returnValidMoves()
+		percepts = board.sensor()
 		numAvailable = 0
 		for j in range(10):
-			if moves[j] != -1:
+			if percepts[j] != -1:
 				numAvailable +=1
 		if numAvailable == 0:
 			#print("no winner")
@@ -297,7 +309,7 @@ for i in range(50):
 
 		if turn%2 == 1:
 			#This is how you determine which agent plays as player one. 
-			randomMove(board, 1)
+			humanPlayerAgent(board, 1)
 			done = board.getWinner()
 			if done == 1:
 				#print("player 1 wins")
@@ -309,7 +321,7 @@ for i in range(50):
 
 		if turn%2 == 0:
 			#This is how you pick which agent is player two. 
-			randomMove(board, 2)
+			randomMovesAgent(board, 2)
 			done = board.getWinner()
 			if done == 2:
 				#print("player 2 wins")
@@ -317,11 +329,8 @@ for i in range(50):
 				break
 
 		turn += 1
-		printBoard(board)
-		print()
 
 	board.reset()
 	turn = 1
-	print("completed game\n")
 
 print("player 1 wins "+ str(player_1) +" times, \nplayer 2 wins " + str(player_2) + " times, \nwith "+str(tie) +" ties")
