@@ -39,13 +39,13 @@ class Environment:
 		moves = self.returnValidMoves()
 		if moves[col] != -1:
 			self.put(col, moves[col], player)
-		lastMoveCol = col
-		lastMoveRow = moves[col]
+		self.lastMoveCol = col
+		self.lastMoveRow = moves[col]
 
 
 	def returnValidMoves(self):
 		moves = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
-		for i in moves:
+		for i in range(10):
 			for j in range(10):
 				if self.get(i, j) == 0:
 					moves[i]=j
@@ -174,12 +174,14 @@ class Environment:
 
 def randomMove(board, player):
 	moves = board.returnValidMoves()
+	print("moves available are"+str(moves))
 	while True:
 		i = random.randint(0, 9)
 		if moves[i] == -1:
 			continue
 		board.makeMove(i, player)
 		break
+
 
 
 
@@ -260,8 +262,8 @@ def ranker(board, col, player, currentThree):
 def printBoard(board):
 	for i in range(10):
 		for j in range(10):
-			print(board.get(j, i))
-	#print("\n")
+			print(board.get(j, i), end = '')
+		print()
 
 
 
@@ -316,6 +318,7 @@ for i in range(50):
 
 		turn += 1
 		printBoard(board)
+		print()
 
 	board.reset()
 	turn = 1
