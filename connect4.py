@@ -36,6 +36,7 @@ class Environment:
 
 	def actuator(self, col, player):
 		percepts = self.sensor()
+		print("actuator acting at "+str(col)+" , "+str(percepts[col]))
 		if percepts[col] != -1:
 			self.put(col, percepts[col], player)
 		self.lastMoveCol = col
@@ -53,6 +54,8 @@ class Environment:
 
 
 	def undo(self):
+		print("starting undo function")
+		print("removing piece from " + str(self.lastMoveCol) + " , " + str(self.lastMoveRow))
 		self.board[self.lastMoveRow][self.lastMoveCol]=0
 
 
@@ -188,12 +191,14 @@ def randomMovesAgent(board, player):
 def lowHangingFruitAgent(board, player):
 	percepts = board.sensor()
 	for i in range(10):
-		board.actuator(i, player)
+		print("pass "+str(i)+" of lowHangingFruit")
+		board.actuator(percepts[i], player)
 		if board.getWinner():
+			print("breaking because winner found")
 			break
 		board.undo()
 		other = (player + 1) % 2
-		board.actuator(i, other)
+		board.actuator(percepts[i], other)
 		if board.getWinner():
 			board.undo()
 			board.actuator(i, player)
@@ -208,7 +213,7 @@ def lowHangingFruitAgent(board, player):
 
 
 def rankedMovesAgent(board, player):
-	percepts = board.returnValidMoves()
+	percepts = board.sensor()
 	for i in range(10):
 		board.actuator(i, player)
 		if board.getWinner():
@@ -272,7 +277,7 @@ def humanPlayerAgent(board, player):
 	percepts= board.sensor()
 	print("Your valid moves are:")
 	for i in range(10):
-		print(str(i)+ ", ", str(percepts[i]), "      ", end = '')
+		print(str(i)+ ", ", str(percepts[i]), "  ", end = '')
 
 	print("")
 	while True:
@@ -283,6 +288,19 @@ def humanPlayerAgent(board, player):
 			continue
 		break
 	board.actuator(move, player)
+
+
+
+
+
+
+temp = Environment()
+temp.actuator(0,1)
+temp.actuator(0,1)
+temp.actuator(0,1)
+temp.actuator(0,1)
+printBoard(temp)
+temp.undo()
 
 
 
@@ -321,7 +339,7 @@ for i in range(5):
 
 		if turn%2 == 0:
 			#This is how you pick which agent is player two. 
-			randomMovesAgent(board, 2)
+			lowHangingFruitAgent(board, 2)
 			done = board.getWinner()
 			if done == 2:
 				#print("player 2 wins")
