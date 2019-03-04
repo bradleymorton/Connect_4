@@ -63,31 +63,31 @@ class Environment:
 		total = 0
 		for j in range(self.height):
 			for i in range(self.width):
-				p = self.get(i, j)
+				p = self.get(j, i)
 				if p == 0:
 					continue
 
                 # check horizontal
-				h2 = self.get(i+1, j)
-				h3 = self.get(i+2, j)
+				h2 = self.get(j+1, i)
+				h3 = self.get(j+2, i)
 				if player == h2 and h2 == h3:
 					total += 1
 
                 # check vertical
-				v2 = self.get(i, j+1)
-				v3 = self.get(i, j+2)
+				v2 = self.get(j, i+1)
+				v3 = self.get(j, i+2)
 				if player == v2 and v2 == v3:
 					total += 1
 
                 # check diagonal
-				d2 = self.get(i+1, j+1)
-				d3 = self.get(i+2, j+2)
+				d2 = self.get(j+1, i+1)
+				d3 = self.get(j+2, i+2)
 				if player == d2 and d2 == d3:
 					total += 1
 
                 # check reverse diagonal
-				d2 = self.get(i-1, j+1)
-				d3 = self.get(i-2, j+2)
+				d2 = self.get(j-1, i+1)
+				d3 = self.get(j-2, i+2)
 				if player == d2 and d2 == d3:
 					total += 1
 
@@ -97,37 +97,37 @@ class Environment:
 		total = 0
 		for j in range(self.height):
 			for i in range(self.width):
-				p = self.get(i, j)
+				p = self.get(j, i)
 				if p == 0:
 					continue
 
                 # check horizontal
-				h0 = self.get(i-1, j)
-				h2 = self.get(i+1, j)
-				h3 = self.get(i+2, j)
-				h4 = self.get(i+3, j)
+				h0 = self.get(j-1, i)
+				h2 = self.get(j+1, i)
+				h3 = self.get(j+2, i)
+				h4 = self.get(j+3, i)
 				if player == h2 and h2 == h3 and h0 == 0 and h4 == 0 and i > 0 and i <6:
 					total += 1
 
                 # check vertical
-				v2 = self.get(i, j+1)
-				v3 = self.get(i, j+2)
+				v2 = self.get(j, i+1)
+				v3 = self.get(j, i+2)
 				if player == v2 and v2 == v3:
 					total += 1
 
                 # check diagonal
-				d0 = self.get(i-1, j-1)
-				d2 = self.get(i+1, j+1)
-				d3 = self.get(i+2, j+2)
-				d4 = self.get(i+3, j+3)
+				d0 = self.get(j-1, i-1)
+				d2 = self.get(j+1, i+1)
+				d3 = self.get(j+2, i+2)
+				d4 = self.get(j+3, i+3)
 				if player == d2 and d2 == d3 and d0 == 0 and d4 == 0 and i>0 and j <5:
 					total += 1
 
                 # check reverse diagonal
-				d0 = self.get(i+1, j-1)
-				d2 = self.get(i-1, j+1)
-				d3 = self.get(i-2, j+2)
-				d4 = self.get(i-3, j+3)
+				d0 = self.get(j+1, i-1)
+				d2 = self.get(j-1, i+1)
+				d3 = self.get(j-2, i+2)
+				d4 = self.get(j-3, i+3)
 				if player == d2 and d2 == d3 and d0 == 0 and d4 == 0:
 					total += 1
 
@@ -139,35 +139,35 @@ class Environment:
 
 		for j in range(self.height):
 			for i in range(self.width):
-				p = self.get(i, j)
+				p = self.get(j, i)
 				if p == 0:
 					continue
 
                 # check horizontal
-				h2 = self.get(i+1, j)
-				h3 = self.get(i+2, j)
-				h4 = self.get(i+3, j)
+				h2 = self.get(j+1, i)
+				h3 = self.get(j+2, i)
+				h4 = self.get(j+3, i)
 				if p == h2 and h2 == h3 and h3 == h4:
 					return p
 
                 # check vertical
-				v2 = self.get(i, j+1)
-				v3 = self.get(i, j+2)
-				v4 = self.get(i, j+3)
+				v2 = self.get(j, i+1)
+				v3 = self.get(j, i+2)
+				v4 = self.get(j, i+3)
 				if p == v2 and v2 == v3 and v3 == v4:
 					return p
 
                 # check diagonal
-				d2 = self.get(i+1, j+1)
-				d3 = self.get(i+2, j+2)
-				d4 = self.get(i+3, j+3)
+				d2 = self.get(j+1, i+1)
+				d3 = self.get(j+2, i+2)
+				d4 = self.get(j+3, i+3)
 				if p == d2 and d2 == d3 and d3 == d4:
 					return p
 
                 # check reverse diagonal
-				d2 = self.get(i-1, j+1)
-				d3 = self.get(i-2, j+2)
-				d4 = self.get(i-3, j+3)
+				d2 = self.get(j-1, i+1)
+				d3 = self.get(j-2, i+2)
+				d4 = self.get(j-3, i+3)
 				if p == d2 and d2 == d3 and d3 == d4:
 					return p
 
