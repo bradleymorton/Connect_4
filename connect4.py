@@ -195,7 +195,7 @@ def lowHangingFruitAgent(board, player):
 		board.actuator(percepts[i], player)
 		if board.getWinner():
 			print("breaking because winner found")
-			break
+			return
 		board.undo()
 	other = (player + 1) % 2
 	for j in range(10):
@@ -204,7 +204,7 @@ def lowHangingFruitAgent(board, player):
 		if board.getWinner():
 			board.undo()
 			board.actuator(j, player)
-			break
+			return
 	while True:
 		i = random.randint(0, 9)
 		if percepts[i] == -1:
@@ -302,10 +302,12 @@ temp.actuator(0,1)
 temp.actuator(0,1)
 temp.actuator(0,1)
 printBoard(temp)
+print("break")
 temp.undo()
-
-
-
+printBoard(temp)
+print("")
+print("")
+print("")
 
 
 
