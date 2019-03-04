@@ -191,24 +191,26 @@ def randomMovesAgent(board, player):
 def lowHangingFruitAgent(board, player):
 	percepts = board.sensor()
 	for i in range(10):
-		print("pass "+str(i)+" of lowHangingFruit")
+		print("player pass "+str(i)+" of lowHangingFruit")
 		board.actuator(percepts[i], player)
 		if board.getWinner():
 			print("breaking because winner found")
 			break
 		board.undo()
-		other = (player + 1) % 2
-		board.actuator(percepts[i], other)
+	other = (player + 1) % 2
+	for j in range(10):
+		print("other pass "+str(j)+" of lowHangingFruit")
+		board.actuator(percepts[j], other)
 		if board.getWinner():
 			board.undo()
-			board.actuator(i, player)
+			board.actuator(j, player)
 			break
-		while True:
-			i = random.randint(0, 9)
-			if percepts[i] == -1:
-				continue
-			board.actuator(i, player)
-			break
+	while True:
+		i = random.randint(0, 9)
+		if percepts[i] == -1:
+			continue
+		board.actuator(i, player)
+		break
 
 
 
