@@ -1,7 +1,7 @@
 #Created 2/8/19 by Bradley Morton for CS405 assignment
 #Much of the code has been taken from Dr. Metzgar with permission.
 import random
-
+from copy import deepcopy
 
 class Environment:
 	def __init__(self):
@@ -36,7 +36,6 @@ class Environment:
 
 	def actuator(self, col, player):
 		percepts = self.sensor()
-		print("actuator acting at "+str(col)+" , "+str(percepts[col]))
 		if percepts[col] != -1:
 			self.put(col, percepts[col], player)
 		self.lastMoveCol = col
@@ -46,16 +45,16 @@ class Environment:
 	def sensor(self):
 		moves = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
 		for i in range(10):
+			if (i-self.lastMoveCol)>2 or (i-self.lastMoveCol)< -2:
+				continue
 			for j in range(10):
-				if self.get(i, j) == 0:
-					moves[i]=j
+					if self.get(i, j) == 0:
+						moves[i]=j
 		return moves
 
 
 
 	def undo(self):
-		print("starting undo function")
-		print("removing piece from " + str(self.lastMoveCol) + " , " + str(self.lastMoveRow))
 		self.board[self.lastMoveRow][self.lastMoveCol]=0
 
 
@@ -63,31 +62,31 @@ class Environment:
 		total = 0
 		for j in range(self.height):
 			for i in range(self.width):
-				p = self.get(j, i)
+				p = self.get(i, j)
 				if p == 0:
 					continue
 
                 # check horizontal
-				h2 = self.get(j+1, i)
-				h3 = self.get(j+2, i)
+				h2 = self.get(i+1, j)
+				h3 = self.get(i+2, j)
 				if player == h2 and h2 == h3:
 					total += 1
 
                 # check vertical
-				v2 = self.get(j, i+1)
-				v3 = self.get(j, i+2)
+				v2 = self.get(i, j+1)
+				v3 = self.get(i, j+2)
 				if player == v2 and v2 == v3:
 					total += 1
 
                 # check diagonal
-				d2 = self.get(j+1, i+1)
-				d3 = self.get(j+2, i+2)
+				d2 = self.get(i+1, j+1)
+				d3 = self.get(i+2, j+2)
 				if player == d2 and d2 == d3:
 					total += 1
 
                 # check reverse diagonal
-				d2 = self.get(j-1, i+1)
-				d3 = self.get(j-2, i+2)
+				d2 = self.get(i-1, j+1)
+				d3 = self.get(i-2, j+2)
 				if player == d2 and d2 == d3:
 					total += 1
 
@@ -97,41 +96,75 @@ class Environment:
 		total = 0
 		for j in range(self.height):
 			for i in range(self.width):
-				p = self.get(j, i)
+				p = self.get(i, j)
 				if p == 0:
 					continue
 
                 # check horizontal
-				h0 = self.get(j-1, i)
-				h2 = self.get(j+1, i)
-				h3 = self.get(j+2, i)
-				h4 = self.get(j+3, i)
+				h0 = self.get(i-1, j)
+				h2 = self.get(i+1, j)
+				h3 = self.get(i+2, j)
+				h4 = self.get(i+3, j)
 				if player == h2 and h2 == h3 and h0 == 0 and h4 == 0 and i > 0 and i <6:
 					total += 1
 
                 # check vertical
-				v2 = self.get(j, i+1)
-				v3 = self.get(j, i+2)
+				v2 = self.get(i, j+1)
+				v3 = self.get(i, j+2)
 				if player == v2 and v2 == v3:
 					total += 1
 
                 # check diagonal
-				d0 = self.get(j-1, i-1)
-				d2 = self.get(j+1, i+1)
-				d3 = self.get(j+2, i+2)
-				d4 = self.get(j+3, i+3)
+				d0 = self.get(i-1, j-1)
+				d2 = self.get(i+1, j+1)
+				d3 = self.get(i+2, j+2)
+				d4 = self.get(i+3, j+3)
 				if player == d2 and d2 == d3 and d0 == 0 and d4 == 0 and i>0 and j <5:
 					total += 1
 
                 # check reverse diagonal
-				d0 = self.get(j+1, i-1)
-				d2 = self.get(j-1, i+1)
-				d3 = self.get(j-2, i+2)
-				d4 = self.get(j-3, i+3)
+				d0 = self.get(i+1, j-1)
+				d2 = self.get(i-1, j+1)
+				d3 = self.get(i-2, j+2)
+				d4 = self.get(i-3, j+3)
 				if player == d2 and d2 == d3 and d0 == 0 and d4 == 0:
 					total += 1
 
 			return total
+
+
+	def fourInRow(self, player):
+		count = 0
+		for j in range(self.height):
+			for i in range(self.width):
+                # check horizontal
+				h2 = self.get(i+1, j)
+				h3 = self.get(i+2, j)
+				h4 = self.get(i+3, j)
+				if player == h2 and h2 == h3 and h3 == h4:
+					count += 1
+
+                # check vertical
+				v2 = self.get(i, j+1)
+				v3 = self.get(i, j+2)
+				v4 = self.get(i, j+3)
+				if player == v2 and v2 == v3 and v3 == v4:
+					count += 1
+
+                # check diagonal
+				d2 = self.get(i+1, j+1)
+				d3 = self.get(i+2, j+2)
+				d4 = self.get(i+3, j+3)
+				if player == d2 and d2 == d3 and d3 == d4:
+					count += 1
+
+                # check reverse diagonal
+				d2 = self.get(i-1, j+1)
+				d3 = self.get(i-2, j+2)
+				d4 = self.get(i-3, j+3)
+				if player == d2 and d2 == d3 and d3 == d4:
+					count += 1
+		return count
 
 
 	def getWinner(self):
@@ -139,35 +172,35 @@ class Environment:
 
 		for j in range(self.height):
 			for i in range(self.width):
-				p = self.get(j, i)
+				p = self.get(i, j)
 				if p == 0:
 					continue
 
                 # check horizontal
-				h2 = self.get(j+1, i)
-				h3 = self.get(j+2, i)
-				h4 = self.get(j+3, i)
+				h2 = self.get(i+1, j)
+				h3 = self.get(i+2, j)
+				h4 = self.get(i+3, j)
 				if p == h2 and h2 == h3 and h3 == h4:
 					return p
 
                 # check vertical
-				v2 = self.get(j, i+1)
-				v3 = self.get(j, i+2)
-				v4 = self.get(j, i+3)
+				v2 = self.get(i, j+1)
+				v3 = self.get(i, j+2)
+				v4 = self.get(i, j+3)
 				if p == v2 and v2 == v3 and v3 == v4:
 					return p
 
                 # check diagonal
-				d2 = self.get(j+1, i+1)
-				d3 = self.get(j+2, i+2)
-				d4 = self.get(j+3, i+3)
+				d2 = self.get(i+1, j+1)
+				d3 = self.get(i+2, j+2)
+				d4 = self.get(i+3, j+3)
 				if p == d2 and d2 == d3 and d3 == d4:
 					return p
 
                 # check reverse diagonal
-				d2 = self.get(j-1, i+1)
-				d3 = self.get(j-2, i+2)
-				d4 = self.get(j-3, i+3)
+				d2 = self.get(i-1, j+1)
+				d3 = self.get(i-2, j+2)
+				d4 = self.get(i-3, j+3)
 				if p == d2 and d2 == d3 and d3 == d4:
 					return p
 
@@ -191,26 +224,24 @@ def randomMovesAgent(board, player):
 def lowHangingFruitAgent(board, player):
 	percepts = board.sensor()
 	for i in range(10):
-		print("player pass "+str(i)+" of lowHangingFruit")
+		print("pass "+str(i)+" of lowHangingFruit")
 		board.actuator(percepts[i], player)
 		if board.getWinner():
 			print("breaking because winner found")
-			return
+			break
 		board.undo()
-	other = (player + 1) % 2
-	for j in range(10):
-		print("other pass "+str(j)+" of lowHangingFruit")
-		board.actuator(percepts[j], other)
+		other = (player + 1) % 2
+		board.actuator(percepts[i], other)
 		if board.getWinner():
 			board.undo()
-			board.actuator(j, player)
-			return
-	while True:
-		i = random.randint(0, 9)
-		if percepts[i] == -1:
-			continue
-		board.actuator(i, player)
-		break
+			board.actuator(i, player)
+			break
+		while True:
+			i = random.randint(0, 9)
+			if percepts[i] == -1:
+				continue
+			board.actuator(i, player)
+			break
 
 
 
@@ -279,7 +310,7 @@ def humanPlayerAgent(board, player):
 	percepts= board.sensor()
 	print("Your valid moves are:")
 	for i in range(10):
-		print(str(i)+ ", ", str(percepts[i]), "  ", end = '')
+		print("("+str(i)+ ", ", str(percepts[i]), "), ", end = '')
 
 	print("")
 	while True:
@@ -295,19 +326,80 @@ def humanPlayerAgent(board, player):
 
 
 
+def lookAHead(board, player):
+	move = minimax(board, player, 4)
+	print("actuator being called at "+str(move))
+	board.actuator(move, player)
+	
 
-temp = Environment()
-temp.actuator(0,1)
-temp.actuator(0,1)
-temp.actuator(0,1)
-temp.actuator(0,1)
-printBoard(temp)
-print("break")
-temp.undo()
-printBoard(temp)
-print("")
-print("")
-print("")
+
+def minimax(board, player, depth):
+	
+	percepts = board.sensor()
+	bestMove = percepts[0]
+	bestScore = -5000000
+	for i in range(10):
+		if percepts[i] == -1:
+			continue
+	clone = deepcopy(board)
+	clone.actuator(i, player)
+	score = maxPlay(clone, player, depth)
+	if score > bestScore:
+		bestMove = i
+		bestScore = score
+	return bestMove
+
+
+
+def maxPlay(board, player, depth):
+	if board.getWinner() or depth == 0:
+		return scoreBoard(board, player)
+	percepts = board.sensor()
+	bestScore = -5000000
+	bestMove = 0
+	for i in range(10):
+		if percepts[i] == -1:
+			continue
+		clone = deepcopy(board)
+		clone.actuator(i, player)
+		score = minPlay(clone, player, depth -1)
+		if score > bestScore:
+			bestMove = i
+			bestScore = score
+	return bestScore
+
+
+
+def minPlay(board, player, depth):
+	other = (player+1)%2
+	if board.getWinner() or depth == 0:
+		return scoreBoard(board, other)
+	percepts = board.sensor()
+	bestScore = -5000000
+	bestMove = 0
+	other = (player+1)%2
+	for i in range(10):
+		if percepts[i] == -1:
+			continue
+		clone = deepcopy(board)
+		clone.actuator(i, other)
+		score = maxPlay(clone, player, depth -1)
+		if score > bestScore:
+			bestMove = i
+			bestScore = score
+	return bestScore
+
+def scoreBoard(board, player):
+	total = 0
+	other = (player+1)%2
+	total += (board.threeInRow(player)-board.threeInRow(other))*5
+	total += board.fourInRow(player)*500
+	return total
+
+
+
+
+
 
 
 
@@ -343,7 +435,7 @@ for i in range(5):
 
 		if turn%2 == 0:
 			#This is how you pick which agent is player two. 
-			lowHangingFruitAgent(board, 2)
+			lookAHead(board, 2)
 			done = board.getWinner()
 			if done == 2:
 				#print("player 2 wins")
