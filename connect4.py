@@ -310,6 +310,8 @@ def humanPlayerAgent(board, player):
 	percepts= board.sensor()
 	print("Your valid moves are:")
 	for i in range(10):
+		if percepts[i] == -1:
+			continue
 		print("("+str(i)+ ", ", str(percepts[i]), "), ", end = '')
 
 	print("")
@@ -334,19 +336,19 @@ def lookAHead(board, player):
 
 
 def minimax(board, player, depth):
-	
+	print("calling minimax")
 	percepts = board.sensor()
 	bestMove = percepts[0]
 	bestScore = -5000000
 	for i in range(10):
 		if percepts[i] == -1:
 			continue
-	clone = deepcopy(board)
-	clone.actuator(i, player)
-	score = maxPlay(clone, player, depth)
-	if score > bestScore:
-		bestMove = i
-		bestScore = score
+		clone = deepcopy(board)
+		clone.actuator(i, player)
+		score = maxPlay(clone, player, depth)
+		if score > bestScore:
+			bestMove = i
+			bestScore = score
 	return bestMove
 
 
@@ -355,6 +357,13 @@ def maxPlay(board, player, depth):
 	if board.getWinner() or depth == 0:
 		return scoreBoard(board, player)
 	percepts = board.sensor()
+	print("AI considering valid moves:")
+	for i in range(10):
+		if percepts[i] == -1:
+			continue
+		print("("+str(i)+ ", ", str(percepts[i]), "), ", end = '')
+
+	print("")
 	bestScore = -5000000
 	bestMove = 0
 	for i in range(10):
