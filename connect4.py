@@ -3,6 +3,11 @@
 import random
 from copy import deepcopy
 
+class Move:
+	def __init__(self, x, y):
+		self.x = x
+		self.y = y
+
 class Environment:
 	def __init__(self):
 		self.board = [[0 for i in range(10)] for j in range(10)]
@@ -224,22 +229,22 @@ def randomMovesAgent(board, player):
 def lowHangingFruitAgent(board, player):
 	percepts = board.sensor()
 	for i in range(10):
-		print("pass "+str(i)+" of lowHangingFruit")
 		board.actuator(percepts[i], player)
 		if board.getWinner():
-			print("breaking because winner found")
 			break
 		board.undo()
 		other = (player + 1) % 2
+	for i in range(10):
 		board.actuator(percepts[i], other)
 		if board.getWinner():
 			board.undo()
 			board.actuator(i, player)
 			break
-		while True:
-			i = random.randint(0, 9)
-			if percepts[i] == -1:
-				continue
+		board.undo()
+	while True:
+		i = random.randint(0, 9)
+		if percepts[i] == -1:
+			continue
 			board.actuator(i, player)
 			break
 
@@ -329,7 +334,7 @@ def humanPlayerAgent(board, player):
 
 
 def lookAHead(board, player):
-	move = minimax(board, player, 4)
+	move = minimax(board, player, 6)
 	print("actuator being called at "+str(move))
 	board.actuator(move, player)
 	
@@ -357,13 +362,6 @@ def maxPlay(board, player, depth):
 	if board.getWinner() or depth == 0:
 		return scoreBoard(board, player)
 	percepts = board.sensor()
-	print("AI considering valid moves:")
-	for i in range(10):
-		if percepts[i] == -1:
-			continue
-		print("("+str(i)+ ", ", str(percepts[i]), "), ", end = '')
-
-	print("")
 	bestScore = -5000000
 	bestMove = 0
 	for i in range(10):
@@ -402,7 +400,7 @@ def scoreBoard(board, player):
 	total = 0
 	other = (player+1)%2
 	total += (board.threeInRow(player)-board.threeInRow(other))*5
-	total += board.fourInRow(player)*500
+	total += (board.fourInRow(player)-board.fourInRow(other))*500
 	return total
 
 
@@ -432,7 +430,7 @@ for i in range(5):
 
 		if turn%2 == 1:
 			#This is how you determine which agent plays as player one. 
-			humanPlayerAgent(board, 1)
+			lookAHead(board, 1)
 			done = board.getWinner()
 			if done == 1:
 				#print("player 1 wins")
@@ -444,7 +442,7 @@ for i in range(5):
 
 		if turn%2 == 0:
 			#This is how you pick which agent is player two. 
-			lookAHead(board, 2)
+			lowHangingFruitAgent(board, 2)
 			done = board.getWinner()
 			if done == 2:
 				#print("player 2 wins")
