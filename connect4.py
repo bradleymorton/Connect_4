@@ -40,20 +40,20 @@ class Environment:
 
 
 	def actuator(self, col, player):
-		percepts = self.sensor()
-		if percepts[col] != -1:
-			self.put(col, percepts[col], player)
-		self.lastMoves.append(Move(percepts[col], col))
+		self.sensor()
+		if self.moves[i] != -1:
+			self.put(col, self.moves[col], player)
+		self.lastMoves.append(Move(self.moves[col], col))
 
 
 	def sensor(self):
-		moves = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+		self.moves = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
 		for i in range(10):
 			if (i-self.lastMoves[-1].y)>2 or (i-self.lastMoves[-1].y)< -2:
 				continue
 			for j in range(10):
 					if self.get(i, j) == 0:
-						moves[i]=j
+						self.moves[i]=j
 
 
 
@@ -226,10 +226,12 @@ def randomMovesAgent(board, player):
 
 
 def lowHangingFruitAgent(board, player):
+	print("calling lowHangingFruitAgent")
 	board.sensor()
 	for i in range(10):
 		board.actuator(board.moves[i], player)
 		if board.getWinner():
+			print("finishing lowHangingFruitAgent")
 			break
 		board.undo()
 		other = (player + 1) % 2
@@ -238,6 +240,7 @@ def lowHangingFruitAgent(board, player):
 		if board.getWinner():
 			board.undo()
 			board.actuator(i, player)
+			print("finishing lowHangingFruitAgent")
 			break
 		board.undo()
 	while True:
@@ -245,6 +248,7 @@ def lowHangingFruitAgent(board, player):
 		if board.moves[i] == -1:
 			continue
 			board.actuator(i, player)
+			print("finishing lowHangingFruitAgent")
 			break
 
 
@@ -341,11 +345,11 @@ def lookAHead(board, player):
 
 def minimax(board, player, depth):
 	print("calling minimax")
-	percepts = board.sensor()
-	bestMove = percepts[0]
+	board.sensor()
+	bestMove = board.moves[0]
 	bestScore = -5000000
 	for i in range(10):
-		if percepts[i] == -1:
+		if board.moves[i] == -1:
 			continue
 		clone = deepcopy(board)
 		clone.actuator(i, player)
@@ -358,6 +362,7 @@ def minimax(board, player, depth):
 
 
 def maxPlay(board, player, depth):
+	print("calling maxPlay at a current depth of "+str(depth))
 	if board.getWinner() or depth == 0:
 		return scoreBoard(board, player)
 	board.sensor()
@@ -377,6 +382,7 @@ def maxPlay(board, player, depth):
 
 
 def minPlay(board, player, depth):
+	print("calling minPlay at a current depth of "+str(depth))
 	other = (player+1)%2
 	if board.getWinner() or depth == 0:
 		return scoreBoard(board, other)
@@ -388,7 +394,7 @@ def minPlay(board, player, depth):
 		if board.moves[i] == -1:
 			continue
 		board.actuator(i, other)
-		score = maxPlay(clone, player, depth -1)
+		score = maxPlay(board, player, depth -1)
 		board.undo()
 		if score > bestScore:
 			bestMove = i
@@ -416,7 +422,7 @@ board.actuator(0,1)
 board.undo()
 board.undo()
 printBoard(board)
-'''
+
 board.sensor()
 print(board.moves)
 
@@ -427,10 +433,10 @@ player_2 = 0
 tie = 0
 for i in range(5):
 	while True:
-		percepts = board.sensor()
+		board.sensor()
 		numAvailable = 0
 		for j in range(10):
-			if percepts[j] != -1:
+			if board.moves[i] != -1:
 				numAvailable +=1
 		if numAvailable == 0:
 			#print("no winner")
@@ -465,4 +471,3 @@ for i in range(5):
 	turn = 1
 
 print("player 1 wins "+ str(player_1) +" times, \nplayer 2 wins " + str(player_2) + " times, \nwith "+str(tie) +" ties")
-'''
