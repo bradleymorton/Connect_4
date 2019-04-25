@@ -13,8 +13,8 @@ class Environment:
 		self.board = [[0 for i in range(10)] for j in range(10)]
 		self.width = 10
 		self.height = 10
-		self.lastMoveCol = 0
-		self.lastMoveRow = 0
+		self.lastMoves =[Move(0,0)]
+		self.moves = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
 
 
 
@@ -43,24 +43,23 @@ class Environment:
 		percepts = self.sensor()
 		if percepts[col] != -1:
 			self.put(col, percepts[col], player)
-		self.lastMoveCol = col
-		self.lastMoveRow = percepts[col]
+		self.lastMoves.append(Move(percepts[col], col))
 
 
 	def sensor(self):
 		moves = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
 		for i in range(10):
-			if (i-self.lastMoveCol)>2 or (i-self.lastMoveCol)< -2:
+			if (i-self.lastMoves[-1].y)>2 or (i-self.lastMoves[-1].y)< -2:
 				continue
 			for j in range(10):
 					if self.get(i, j) == 0:
 						moves[i]=j
-		return moves
 
 
 
 	def undo(self):
-		self.board[self.lastMoveRow][self.lastMoveCol]=0
+		self.board[self.lastMoves[-1].x][self.lastMoves[-1].y]=0
+		self.lastMoves.pop()
 
 
 	def threeInRow(self, player):
@@ -213,10 +212,10 @@ class Environment:
 
 
 def randomMovesAgent(board, player):
-	percepts = board.sensor()
+	board.sensor()
 	while True:
 		i = random.randint(0, 9)
-		if percepts[i] == -1:
+		if board.moves == -1:
 			continue
 		board.actuator(i, player)
 		break
@@ -227,15 +226,15 @@ def randomMovesAgent(board, player):
 
 
 def lowHangingFruitAgent(board, player):
-	percepts = board.sensor()
+	board.sensor()
 	for i in range(10):
-		board.actuator(percepts[i], player)
+		board.actuator(board.moves[i], player)
 		if board.getWinner():
 			break
 		board.undo()
 		other = (player + 1) % 2
 	for i in range(10):
-		board.actuator(percepts[i], other)
+		board.actuator(board.moves[i], other)
 		if board.getWinner():
 			board.undo()
 			board.actuator(i, player)
@@ -243,7 +242,7 @@ def lowHangingFruitAgent(board, player):
 		board.undo()
 	while True:
 		i = random.randint(0, 9)
-		if percepts[i] == -1:
+		if board.moves[i] == -1:
 			continue
 			board.actuator(i, player)
 			break
@@ -361,15 +360,15 @@ def minimax(board, player, depth):
 def maxPlay(board, player, depth):
 	if board.getWinner() or depth == 0:
 		return scoreBoard(board, player)
-	percepts = board.sensor()
+	board.sensor()
 	bestScore = -5000000
 	bestMove = 0
 	for i in range(10):
-		if percepts[i] == -1:
+		if board.moves[i] == -1:
 			continue
-		clone = deepcopy(board)
-		clone.actuator(i, player)
-		score = minPlay(clone, player, depth -1)
+		board.actuator(i, player)
+		score = minPlay(board, player, depth -1)
+		board.undo()
 		if score > bestScore:
 			bestMove = i
 			bestScore = score
@@ -381,16 +380,16 @@ def minPlay(board, player, depth):
 	other = (player+1)%2
 	if board.getWinner() or depth == 0:
 		return scoreBoard(board, other)
-	percepts = board.sensor()
+	board.sensor()
 	bestScore = -5000000
 	bestMove = 0
 	other = (player+1)%2
 	for i in range(10):
-		if percepts[i] == -1:
+		if board.moves[i] == -1:
 			continue
-		clone = deepcopy(board)
-		clone.actuator(i, other)
+		board.actuator(i, other)
 		score = maxPlay(clone, player, depth -1)
+		board.undo()
 		if score > bestScore:
 			bestMove = i
 			bestScore = score
@@ -411,6 +410,17 @@ def scoreBoard(board, player):
 
 
 board = Environment()
+'''
+board.actuator(0,1)
+board.actuator(0,1)
+board.undo()
+board.undo()
+printBoard(board)
+'''
+board.sensor()
+print(board.moves)
+
+'''
 turn =  1
 player_1 = 0
 player_2 = 0
@@ -455,3 +465,4 @@ for i in range(5):
 	turn = 1
 
 print("player 1 wins "+ str(player_1) +" times, \nplayer 2 wins " + str(player_2) + " times, \nwith "+str(tie) +" ties")
+'''
