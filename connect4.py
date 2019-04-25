@@ -41,7 +41,7 @@ class Environment:
 
 	def actuator(self, col, player):
 		self.sensor()
-		if self.moves[i] != -1:
+		if self.moves[col] != -1:
 			self.put(col, self.moves[col], player)
 		self.lastMoves.append(Move(self.moves[col], col))
 
@@ -61,6 +61,37 @@ class Environment:
 		self.board[self.lastMoves[-1].x][self.lastMoves[-1].y]=0
 		self.lastMoves.pop()
 
+
+
+	def twoInRow(self, player):
+		total = 0
+		for j in range(self.height):
+			for i in range(self.width):
+				p = self.get(i, j)
+				if p == 0:
+					continue
+
+                # check horizontal
+				h2 = self.get(i+1, j)
+				if player == h2 and h2 == h3:
+					total += 1
+
+                # check vertical
+				v2 = self.get(i, j+1)
+				if player == v2 and v2 == v3:
+					total += 1
+
+                # check diagonal
+				d2 = self.get(i+1, j+1)
+				if player == d2 and d2 == d3:
+					total += 1
+
+                # check reverse diagonal
+				d2 = self.get(i-1, j+1)
+				if player == d2 and d2 == d3:
+					total += 1
+
+			return total
 
 	def threeInRow(self, player):
 		total = 0
@@ -340,20 +371,23 @@ def lookAHead(board, player):
 	move = minimax(board, player, 6)
 	print("actuator being called at "+str(move))
 	board.actuator(move, player)
+	print(str(board.lastMoves[-1].x)+" "+str(board.lastMoves[-1].y))
 	
 
 
 def minimax(board, player, depth):
-	print("calling minimax")
+	#print("calling minimax")
 	board.sensor()
 	bestMove = board.moves[0]
 	bestScore = -5000000
+	print(board.moves)
 	for i in range(10):
+		board.sensor()
 		if board.moves[i] == -1:
 			continue
-		clone = deepcopy(board)
-		clone.actuator(i, player)
-		score = maxPlay(clone, player, depth)
+		board.actuator(i, player)
+		score = maxPlay(board, player, depth)
+		board.undo()	
 		if score > bestScore:
 			bestMove = i
 			bestScore = score
@@ -362,7 +396,7 @@ def minimax(board, player, depth):
 
 
 def maxPlay(board, player, depth):
-	print("calling maxPlay at a current depth of "+str(depth))
+	#print("calling maxPlay at a current depth of "+str(depth))
 	if board.getWinner() or depth == 0:
 		return scoreBoard(board, player)
 	board.sensor()
@@ -382,7 +416,7 @@ def maxPlay(board, player, depth):
 
 
 def minPlay(board, player, depth):
-	print("calling minPlay at a current depth of "+str(depth))
+	#print("calling minPlay at a current depth of "+str(depth))
 	other = (player+1)%2
 	if board.getWinner() or depth == 0:
 		return scoreBoard(board, other)
@@ -410,6 +444,84 @@ def scoreBoard(board, player):
 
 
 
+def lookAHead2(board, player):
+	move = minimax2(board, player, 6)
+	print("actuator being called at "+str(move))
+	board.actuator(move, player)
+	print(str(board.lastMoves[-1].x)+" "+str(board.lastMoves[-1].y))
+	
+
+
+def minimax2(board, player, depth):
+	#print("calling minimax")
+	board.sensor()
+	bestMove = board.moves[0]
+	bestScore = -5000000
+	print(board.moves)
+	for i in range(10):
+		board.sensor()
+		if board.moves[i] == -1:
+			continue
+		board.actuator(i, player)
+		score = maxPlay2(board, player, depth)
+		board.undo()	
+		if score > bestScore:
+			bestMove = i
+			bestScore = score
+	return bestMove
+
+
+
+def maxPlay2(board, player, depth):
+	#print("calling maxPlay at a current depth of "+str(depth))
+	if board.getWinner() or depth == 0:
+		return scoreBoard(board, player)
+	board.sensor()
+	bestScore = -5000000
+	bestMove = 0
+	for i in range(10):
+		if board.moves[i] == -1:
+			continue
+		board.actuator(i, player)
+		score = minPlay2(board, player, depth -1)
+		board.undo()
+		if score > bestScore:
+			bestMove = i
+			bestScore = score
+	return bestScore
+
+
+
+def minPlay2(board, player, depth):
+	#print("calling minPlay at a current depth of "+str(depth))
+	other = (player+1)%2
+	if board.getWinner() or depth == 0:
+		return scoreBoard(board, other)
+	board.sensor()
+	bestScore = -5000000
+	bestMove = 0
+	other = (player+1)%2
+	for i in range(10):
+		if board.moves[i] == -1:
+			continue
+		board.actuator(i, other)
+		score = maxPlay2(board, player, depth -1)
+		board.undo()
+		if score > bestScore:
+			bestMove = i
+			bestScore = score
+	return bestScore
+
+def scoreBoard2(board, player):
+	total = 0
+	other = (player+1)%2
+	#total += (board.twoInRow(player)-board.twoInRow(other))*30
+	#total += (board.threeInRow(player)-board.threeInRow(other))*10
+	total += (board.fourInRow(player)-board.fourInRow(other))*500
+	return total
+
+
+
 
 
 
@@ -431,15 +543,17 @@ turn =  1
 player_1 = 0
 player_2 = 0
 tie = 0
-for i in range(5):
+for i in range(1):
 	while True:
 		board.sensor()
 		numAvailable = 0
 		for j in range(10):
-			if board.moves[i] != -1:
+			if board.moves[j] != -1:
 				numAvailable +=1
 		if numAvailable == 0:
-			#print("no winner")
+			print("no winner")
+			printBoard(board)
+			print(board.moves)
 			tie += 1
 			break
 
@@ -449,7 +563,8 @@ for i in range(5):
 			lookAHead(board, 1)
 			done = board.getWinner()
 			if done == 1:
-				#print("player 1 wins")
+				print("player 1 wins")
+				printBoard(board)
 				player_1 += 1
 				break
 
@@ -458,14 +573,18 @@ for i in range(5):
 
 		if turn%2 == 0:
 			#This is how you pick which agent is player two. 
-			lowHangingFruitAgent(board, 2)
+			lookAHead2(board, 2)
 			done = board.getWinner()
 			if done == 2:
-				#print("player 2 wins")
+				print("player 2 wins")
+				printBoard(board)
 				player_2 += 1
 				break
 
 		turn += 1
+
+		printBoard(board)
+		print("")
 
 	board.reset()
 	turn = 1
